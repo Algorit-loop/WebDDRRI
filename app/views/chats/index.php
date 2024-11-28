@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Accounts</title>
+    <title>Chats</title>
     <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/style.css">
     <style>
         /* Bố cục toàn màn hình */
@@ -108,16 +108,12 @@
         .content-table td.actions {
             text-align: right;
         }
-
-        .content-table input[type="checkbox"] {
-            cursor: pointer;
-        }
     </style>
 </head>
 <body>
     <div class="container">
         <!-- Header -->
-        <div class="header">My Awesome Website</div>
+        <div class="header">Chats</div>
         
         <!-- Main Content -->
         <div class="main-content">
@@ -135,50 +131,45 @@
                     <li><a href="<?= BASE_URL ?>?page=logout">Logout</a></li>
                 </ul>
             </div>
+
             <!-- Content Section -->
             <div class="content">
-                <h2>Accounts</h2>
-                <form action="<?= BASE_URL ?>?page=toggle_active" method="POST">
-                    <table class="content-table">
-                        <thead>
-                            <tr>
-                                <th>Username</th>
-                                <th>Email</th>
-                                <th>Role</th>
-                                <th>Created At</th>
-                                <th>Active</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php if (!empty($accounts)): ?>
-                                <?php foreach ($accounts as $account): ?>
-                                    <tr>
-                                        <td><?= htmlspecialchars($account['username']); ?></td>
-                                        <td><?= htmlspecialchars($account['email']); ?></td>
-                                        <td><?= htmlspecialchars($account['role']); ?></td>
-                                        <td><?= htmlspecialchars($account['created_at']); ?></td>
-                                        
-                                        <td>
-                                            <?php if (
-                                                ($_SESSION['user']['role'] === 'admin' && in_array($account['role'], ['assistant', 'member'])) ||
-                                                ($_SESSION['user']['role'] === 'assistant' && $account['role'] === 'member')
-                                            ): ?>
-                                                <input type="checkbox" name="active_status[<?= $account['id'] ?>]" <?= $account['active'] ? 'checked' : '' ?>>
-                                            <?php else: ?>
-                                                <?= $account['active'] ? 'Active' : 'Inactive' ?>
-                                            <?php endif; ?>
-                                        </td>
-                                    </tr>
-                                <?php endforeach; ?>
-                            <?php else: ?>
-                                <tr>
-                                    <td colspan="5">No accounts available.</td>
-                                </tr>
-                            <?php endif; ?>
-                        </tbody>
-                    </table>
-                    <button type="submit">Update Status</button>
+                <h2>Welcome to Chat Rooms</h2>
+
+                <!-- Form tạo phòng chat -->
+                <form action="<?= BASE_URL ?>?page=create_room" method="POST">
+                    <label for="room_name">Create a new room:</label>
+                    <input type="text" name="room_name" id="room_name" placeholder="Room name" required>
+                    <button type="submit">Create Room</button>
                 </form>
+
+                <h3>Available Chat Rooms:</h3>
+                <table class="content-table">
+                    <thead>
+                        <tr>
+                            <th>Room Name</th>
+                            <th>Created At</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php if (!empty($rooms)): ?>
+                            <?php foreach ($rooms as $room): ?>
+                                <tr>
+                                    <td><?= htmlspecialchars($room['name']); ?></td>
+                                    <td><?= htmlspecialchars($room['created_at']); ?></td>
+                                    <td class="actions">
+                                        <a href="<?= BASE_URL ?>?page=chats&room_id=<?= $room['id']; ?>">Join</a>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <tr>
+                                <td colspan="3">No chat rooms available yet.</td>
+                            </tr>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>

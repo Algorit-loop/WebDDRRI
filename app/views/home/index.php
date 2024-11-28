@@ -124,9 +124,10 @@
                     <li><a href="<?= BASE_URL ?>?page=dashboard">Dashboard</a></li>
                     <li><a href="<?= BASE_URL ?>?page=public_files">Public</a></li>
                     <li><a href="<?= BASE_URL ?>?page=profile">Profile</a></li>
-                    <?php if (in_array($_SESSION['user']['role'],['admin','assistant'])): ?>
+                    <?php if (in_array($_SESSION['user']['role'], ['admin', 'assistant'])): ?>
                         <li><a href="<?= BASE_URL ?>?page=accounts">Accounts</a></li>
                     <?php endif; ?>
+                    <li><a href="<?= BASE_URL ?>?page=chats">Chats</a></li>
                     <li><a href="<?= BASE_URL ?>?page=settings">Settings</a></li>
                     <li><a href="<?= BASE_URL ?>?page=logout">Logout</a></li>
                 </ul>

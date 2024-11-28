@@ -11,6 +11,7 @@ require_once '../app/controllers/FileController.php';
 require_once '../app/controllers/SettingsController.php';
 require_once '../app/controllers/ProfileController.php';
 require_once '../app/controllers/AccountController.php';
+require_once '../app/controllers/ChatController.php';
 
 
 
@@ -85,7 +86,25 @@ switch ($page) {
         $accountController = new AccountController();
         $accountController->toggleActiveStatus();
         break;
+    
+    case 'chats':
+        $chatController = new ChatController();
+        $roomId = $_GET['room_id'] ?? null;
+        if ($roomId !== null) {
+            $chatController->joinRoom($roomId);
+        } else {
+            $chatController->index();
+        }
+        break;
 
+    case 'create_room':
+        $chatController = new ChatController();
+        $chatController->createRoom(); // Tạo phòng chat mới
+        break;
+    case 'send_message':
+        $chatController = new ChatController();
+        $chatController->sendMessage();
+        break;
     case 'home':
     
     default:
