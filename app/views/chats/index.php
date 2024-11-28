@@ -131,11 +131,14 @@
                     <li><a href="<?= BASE_URL ?>?page=logout">Logout</a></li>
                 </ul>
             </div>
-
+            
             <!-- Content Section -->
             <div class="content">
                 <h2>Welcome to Chat Rooms</h2>
-
+                <?php if (isset($_SESSION['message'])): ?>
+                    <p style="color: green; font-weight: bold;"><?= htmlspecialchars($_SESSION['message']) ?></p>
+                    <?php unset($_SESSION['message']); // Xóa thông báo sau khi hiển thị ?>
+                <?php endif; ?>
                 <!-- Form tạo phòng chat -->
                 <form action="<?= BASE_URL ?>?page=create_room" method="POST">
                     <label for="room_name">Create a new room:</label>

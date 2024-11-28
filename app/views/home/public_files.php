@@ -131,7 +131,7 @@
                     <li><a href="<?= BASE_URL ?>?page=logout">Logout</a></li>
                 </ul>
             </div>
-
+            
             <!-- Content Section -->
             <div class="content">
                 <h2>Public Files</h2>

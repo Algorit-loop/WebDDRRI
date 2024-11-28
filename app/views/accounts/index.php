@@ -136,8 +136,13 @@
                 </ul>
             </div>
             <!-- Content Section -->
+            
             <div class="content">
                 <h2>Accounts</h2>
+                    <?php if (isset($_SESSION['message'])): ?>
+                    <p style="color: green; font-weight: bold;"><?= htmlspecialchars($_SESSION['message']) ?></p>
+                    <?php unset($_SESSION['message']); // Xóa thông báo sau khi hiển thị ?>
+                <?php endif; ?>
                 <form action="<?= BASE_URL ?>?page=toggle_active" method="POST">
                     <table class="content-table">
                         <thead>
