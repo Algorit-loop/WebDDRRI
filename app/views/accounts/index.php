@@ -154,8 +154,16 @@
                                         <td><?= htmlspecialchars($account['email']); ?></td>
                                         <td><?= htmlspecialchars($account['role']); ?></td>
                                         <td><?= htmlspecialchars($account['created_at']); ?></td>
+                                        
                                         <td>
-                                            <input type="checkbox" name="active_status[<?= $account['id']; ?>]" value="1" <?= $account['active'] ? 'checked' : ''; ?>>
+                                            <?php if (
+                                                ($_SESSION['user']['role'] === 'admin' && in_array($account['role'], ['assistant', 'member'])) ||
+                                                ($_SESSION['user']['role'] === 'assistant' && $account['role'] === 'member')
+                                            ): ?>
+                                                <input type="checkbox" name="active_status[<?= $account['id'] ?>]" <?= $account['active'] ? 'checked' : '' ?>>
+                                            <?php else: ?>
+                                                <?= $account['active'] ? 'Active' : 'Inactive' ?>
+                                            <?php endif; ?>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>

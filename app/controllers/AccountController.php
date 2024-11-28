@@ -13,11 +13,10 @@ class AccountController
     // Kiểm tra trạng thái kích hoạt của người dùng
     public function checkUserActiveStatus()
     {
-        // Kiểm tra nếu người dùng đã đăng nhập
         if (isset($_SESSION['user'])) {
             $user = $this->userModel->getUserById($_SESSION['user']['id']);
-            
-            // Nếu tài khoản bị vô hiệu hóa, tự động đăng xuất
+
+            // Nếu tài khoản bị vô hiệu hóa hoặc không tồn tại
             if (!$user || $user['active'] == 0) {
                 session_unset();
                 session_destroy();
@@ -32,10 +31,9 @@ class AccountController
     {
         session_start();
 
-        // Kiểm tra trạng thái active của người dùng
         $this->checkUserActiveStatus();
 
-        if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
+        if (!isset($_SESSION['user']) ||  !in_array($_SESSION['user']['role'],['admin','assistant'])) {
             header('Location: ' . BASE_URL . '?page=login');
             exit;
         }
@@ -52,10 +50,9 @@ class AccountController
     {
         session_start();
 
-        // Kiểm tra trạng thái active của người dùng
         $this->checkUserActiveStatus();
 
-        if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
+        if (!isset($_SESSION['user']) || ($_SESSION['user']['role'] !== 'admin' && $_SESSION['user']['role'] !== 'assistant')) {
             header('Location: ' . BASE_URL . '?page=login');
             exit;
         }
@@ -63,10 +60,28 @@ class AccountController
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $activeStatus = $_POST['active_status'] ?? [];
 
-            // Duyệt qua danh sách tài khoản
+            // Lấy danh sách tất cả tài khoản
             $accounts = $this->userModel->getAllUsers();
             foreach ($accounts as $account) {
+                // Không thể thay đổi trạng thái chính mình
+                if ($account['id'] == $_SESSION['user']['id']) {
+                    continue;
+                }
+
+                // Admin chỉ có thể thay đổi trạng thái của assistant và member
+                if ($_SESSION['user']['role'] === 'admin' && !in_array($account['role'], ['assistant', 'member'])) {
+                    continue;
+                }
+
+                // Assistant chỉ có thể thay đổi trạng thái của member
+                if ($_SESSION['user']['role'] === 'assistant' && $account['role'] !== 'member') {
+                    continue;
+                }
+
+                // Xác định trạng thái active
                 $isActive = isset($activeStatus[$account['id']]) ? 1 : 0;
+
+                // Cập nhật trạng thái active
                 $this->userModel->updateActiveStatus($account['id'], $isActive);
             }
 
