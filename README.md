@@ -6,9 +6,9 @@ Dự án là một nền tảng trực tuyến hiện đại cho phép người 
 - Người dùng có thể tải lên, lưu trữ và quản lý các tệp tin của mình như tài liệu, hình ảnh, video hoặc bất kỳ loại dữ liệu nào.
 - Hỗ trợ phân loại và tìm kiếm tệp tin dễ dàng thông qua thẻ (tags) hoặc bộ lọc. (đang cập nhật)
 - Chế độ bảo mật: Người dùng có thể tùy chỉnh quyền truy cập (công khai, chỉ mình tôi).
-### 2. Nhắn tin: (đang cập nhật)
+### 2. Nhắn tin: (đang cập nhật) [fix-bug -> chat theo thời gian thực]
 - Tích hợp hệ thống nhắn tin tức thì (chat) cho phép người dùng giao tiếp theo thời gian thực.
-- Hỗ trợ gửi văn bản, hình ảnh, tệp đính kèm và biểu tượng cảm xúc.
+- Hỗ trợ gửi văn bản, ~~hình ảnh, tệp đính kèm và biểu tượng cảm xúc~~.
 - ~~Tính năng thông báo khi có tin nhắn mới hoặc khi tin nhắn được đọc.~~
 ### 3.Quản lý hồ sơ cá nhân: (đang cập nhật)
 - Mỗi người dùng có một trang cá nhân để hiển thị thông tin và các tệp đã chia sẻ.
