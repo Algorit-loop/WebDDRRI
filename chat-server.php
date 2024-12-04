@@ -8,7 +8,6 @@ use Ratchet\ConnectionInterface;
 
 class ChatServer implements MessageComponentInterface
 {
-    
     protected $clients;
     protected $chatController;
 
@@ -21,8 +20,8 @@ class ChatServer implements MessageComponentInterface
 
     public function onOpen(ConnectionInterface $conn)
     {
-        $this->clients->attach($conn);
-        $this->clients[$conn] = ['room_id' => null];
+        // Lưu client với room_id mặc định là null
+        $this->clients->attach($conn, ['room_id' => null]);
         echo "New connection: ({$conn->resourceId})\n";
     }
 
@@ -32,17 +31,38 @@ class ChatServer implements MessageComponentInterface
 
         // Parse dữ liệu JSON từ client
         $data = json_decode($msg, true);
-        if ($data && isset($data['room_id'], $data['username'], $data['message_content'])) {
-            // Lưu tin nhắn vào cơ sở dữ liệu qua ChatController
+
+        if (isset($data['type']) && $data['type'] === 'join') {
+            $roomId = $data['room_id'] ?? null;
+            if ($roomId) {
+                // Lấy dữ liệu hiện tại của client
+                $clientData = $this->clients[$from];
+        
+                // Cập nhật room_id
+                $clientData['room_id'] = $roomId;
+        
+                // Ghi lại dữ liệu vào SplObjectStorage
+                $this->clients->detach($from);
+                $this->clients->attach($from, $clientData);
+        
+                echo "Client {$from->resourceId} joined room $roomId\n";
+            }
+        } elseif (isset($data['room_id'], $data['username'], $data['message_content'])) {
+            // Xử lý tin nhắn
+            $roomId = $data['room_id'];
+
+            // Lưu tin nhắn vào cơ sở dữ liệu
             $this->chatController->saveMessage($data['room_id'], $data['username'], $data['message_content']);
 
-            // Gửi tin nhắn đến tất cả các client
+            // Gửi tin nhắn đến tất cả các client trong cùng room
             foreach ($this->clients as $client) {
-                $client->send(json_encode([
-                    'username' => $data['username'],
-                    'message_content' => $data['message_content'],
-                    'timestamp' => date('Y-m-d H:i:s') // Thời gian hiện tại
-                ]));
+                if ($this->clients[$client]['room_id'] === $roomId) {
+                    $client->send(json_encode([
+                        'username' => $data['username'],
+                        'message_content' => $data['message_content'],
+                        'timestamp' => date('Y-m-d H:i:s') // Thời gian hiện tại
+                    ]));
+                }
             }
         } else {
             echo "Invalid message format\n";
@@ -74,7 +94,6 @@ $server = IoServer::factory(
             new ChatServer()
         )
     ),
-    
     8080 // Port của WebSocket server
 );
 
