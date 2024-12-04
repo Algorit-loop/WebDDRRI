@@ -101,10 +101,7 @@ switch ($page) {
         $chatController = new ChatController();
         $chatController->createRoom(); // Tạo phòng chat mới
         break;
-    case 'send_message':
-        $chatController = new ChatController();
-        $chatController->sendMessage();
-        break;
+
     case 'home':
     
     default:

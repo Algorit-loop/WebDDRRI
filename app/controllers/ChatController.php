@@ -1,6 +1,7 @@
 <?php
-require_once '../app/models/Chat.php';
-require_once '../config/config.php';
+require_once __DIR__ . '/../models/User.php';
+require_once __DIR__ . '/../models/Chat.php';
+require_once __DIR__ . '/../../config/database.php';
 
 class ChatController
 {
@@ -9,12 +10,14 @@ class ChatController
     public function __construct()
     {
         $this->chatModel = new Chat();
+        $this->userModel = new User();
     }
 
     public function index()
     {
         session_start();
-
+        $accountController = new AccountController();
+        $accountController->checkUserActiveStatus();
         if (!isset($_SESSION['user'])) {
             header('Location: ' . BASE_URL . '?page=login');
             exit;
@@ -30,7 +33,8 @@ class ChatController
     public function room($roomId)
     {
         session_start();
-
+        $accountController = new AccountController();
+        $accountController->checkUserActiveStatus();
         if (!isset($_SESSION['user'])) {
             header('Location: ' . BASE_URL . '?page=login');
             exit;
@@ -47,7 +51,8 @@ class ChatController
     public function joinRoom($roomId)
     {
         session_start();
-
+        $accountController = new AccountController();
+        $accountController->checkUserActiveStatus();
         if (!isset($_SESSION['user'])) {
             header('Location: ' . BASE_URL . '?page=login');
             exit;
@@ -77,7 +82,8 @@ class ChatController
     public function createRoom()
     {
         session_start();
-
+        $accountController = new AccountController();
+        $accountController->checkUserActiveStatus();
         if (!isset($_SESSION['user'])) {
             header('Location: ' . BASE_URL . '?page=login');
             exit;
@@ -99,29 +105,18 @@ class ChatController
         }
     }
 
-    public function sendMessage()
+    public function saveMessage($roomId, $username, $messageContent)
     {
-        session_start();
+        // Lấy ID của người dùng dựa vào username
+        
+        $user = $this->userModel->getUserByUsername($username);
 
-        if (!isset($_SESSION['user'])) {
-            header('Location: ' . BASE_URL . '?page=login');
-            exit;
+        if ($user) {
+            // Lưu tin nhắn vào cơ sở dữ liệu
+            $this->chatModel->addMessage($roomId, $user['id'], $messageContent);
+        } else {
+            echo "User not found: $username\n";
         }
-
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $roomId = $_POST['room_id'] ?? null;
-            $messageContent = $_POST['message_content'] ?? '';
-
-            if ($roomId && is_numeric($roomId) && !empty($messageContent)) {
-                $this->chatModel->addMessage($roomId, $_SESSION['user']['id'], $messageContent);
-                header('Location: ' . BASE_URL . '?page=chats&room_id=' . $roomId);
-                exit;
-            }
-        }
-
-        $_SESSION['message'] = "Failed to send message!";
-        header('Location: ' . BASE_URL . '?page=chats');
-        exit;
     }
 
 }

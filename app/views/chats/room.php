@@ -83,9 +83,11 @@
         .messages {
             border: 1px solid #ddd;
             padding: 10px;
-            height: 300px;
+            height: 400px; /* Tăng chiều cao khung chat */
             overflow-y: scroll;
             margin-bottom: 20px;
+            border-radius: 8px;
+            background-color: #f9f9f9;
         }
 
         .messages p {
@@ -100,76 +102,52 @@
             color: gray;
             font-size: 12px;
         }
-        
+
+        /* Message Form Styling */
+        .message-form {
+            display: flex;
+            align-items: center;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .message-form textarea {
+            flex: 1;
+            height: 40px; /* Đặt chiều cao nhỏ hơn để phù hợp trên một dòng */
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+            resize: none;
+            margin-right: 10px; /* Tạo khoảng cách giữa ô nhập và nút Send */
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .message-form textarea:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+        }
+
+        .message-form button {
+            height: 40px;
+            padding: 0 20px;
+            font-size: 14px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .message-form button:hover {
+            background-color: #0056b3;
+        }
     </style>
-    <style>
-    /* Chat Messages Styling */
-    .messages {
-        border: 1px solid #ddd;
-        padding: 10px;
-        height: 330px; /* Tăng chiều cao khung chat */
-        overflow-y: scroll;
-        margin-bottom: 20px;
-        border-radius: 8px;
-    }
-
-    .messages p {
-        margin: 5px 0;
-    }
-
-    .messages .username {
-        font-weight: bold;
-    }
-
-    .messages .timestamp {
-        color: gray;
-        font-size: 12px;
-    }
-
-    .message-form {
-        display: flex;
-        align-items: center;
-        background-color: #f9f9f9;
-        border: 1px solid #ddd;
-        padding: 10px;
-        border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
-
-    .message-form textarea {
-        flex: 1;
-        height: 40px; /* Đặt chiều cao nhỏ hơn để phù hợp trên một dòng */
-        padding: 10px;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-        font-size: 14px;
-        resize: none;
-        margin-right: 10px; /* Tạo khoảng cách giữa ô nhập và nút Send */
-        box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
-    }
-
-    .message-form textarea:focus {
-        outline: none;
-        border-color: #007bff;
-        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
-    }
-
-    .message-form button {
-        height: 40px;
-        padding: 0 20px;
-        font-size: 14px;
-        background-color: #007bff;
-        color: white;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-    }
-
-    .message-form button:hover {
-        background-color: #0056b3;
-    }
-</style>
 </head>
 <body>
     <div class="container">
@@ -198,6 +176,7 @@
                 <!-- Messages -->
                 <h2>Chat Messages</h2>
                 <div class="messages">
+                    <!-- Tin nhắn ban đầu -->
                     <?php if (!empty($messages)): ?>
                         <?php foreach ($messages as $message): ?>
                             <p>
@@ -213,8 +192,7 @@
 
                 <!-- Message Form -->
                 <div class="message-form">
-                    <form action="<?= BASE_URL ?>?page=send_message" method="POST" style="display: flex; flex: 1;">
-                        <input type="hidden" name="room_id" value="<?= $room['id']; ?>">
+                    <form style="display: flex; flex: 1;">
                         <textarea name="message_content" placeholder="Type your message here..." required></textarea>
                         <button type="submit">Send</button>
                     </form>
@@ -222,5 +200,59 @@
             </div>
         </div>
     </div>
+
+    <!-- WebSocket Script -->
+    <script>
+        const currentUrl = new URL(window.location.href);
+        // const roomId = <?= json_encode($room['id']); ?>; // ID của phòng chat
+        const roomId = currentUrl.searchParams.get('room_id');
+        const userName = <?= json_encode($_SESSION['user']['username']); ?>; // Tên người dùng
+
+        // Kết nối với WebSocket server
+        const conn = new WebSocket('ws://localhost:8080');
+
+        conn.onopen = function () {
+            console.log("Connected to WebSocket server");
+
+            // Gửi yêu cầu tham gia room
+            conn.send(JSON.stringify({
+                type: 'join',
+                room_id: roomId
+            }));
+        };
+        // Khi nhận được tin nhắn mới
+        conn.onmessage = function (e) {
+            const messagesDiv = document.querySelector('.messages');
+            const data = JSON.parse(e.data);
+
+            // Hiển thị tin nhắn
+            const messageElem = document.createElement('p');
+            messageElem.innerHTML = `<span class="username">${data.username}:</span> ${data.message_content} <span class="timestamp" style="color: gray;">(${data.timestamp})</span>`;
+            messagesDiv.appendChild(messageElem);
+
+            // Tự động cuộn xuống cuối
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        };
+
+        // Gửi tin nhắn
+        const form = document.querySelector('form');
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+            const messageInput = document.querySelector('textarea');
+            const messageContent = messageInput.value;
+
+            // Gửi tin nhắn qua WebSocket
+            const message = {
+                room_id: roomId,
+                username: userName,
+                message_content: messageContent,
+                timestamp: new Date().toISOString()
+            };
+            conn.send(JSON.stringify(message));
+
+            // Xóa nội dung ô nhập tin nhắn
+            messageInput.value = '';
+        });
+    </script>
 </body>
 </html>
