@@ -209,8 +209,9 @@
         const userName = <?= json_encode($_SESSION['user']['username']); ?>; // Tên người dùng
 
         // Kết nối với WebSocket server
-        const conn = new WebSocket('ws://localhost:8080');
-
+        // const conn = new WebSocket('wss://ff06-116-110-3-233.ngrok-free.app:8080');
+            
+        // const conn = new WebSocket('ws://172.21.3.110:8080');
         conn.onopen = function () {
             console.log("Connected to WebSocket server");
 

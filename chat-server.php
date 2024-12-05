@@ -5,6 +5,9 @@ require_once __DIR__ . '/config/database.php'; // Nếu cần thiết
 
 use Ratchet\MessageComponentInterface;
 use Ratchet\ConnectionInterface;
+use Ratchet\Server\IoServer;
+use Ratchet\Http\HttpServer;
+use Ratchet\WebSocket\WsServer;
 
 class ChatServer implements MessageComponentInterface
 {
@@ -83,18 +86,14 @@ class ChatServer implements MessageComponentInterface
     }
 }
 
-// Tạo server WebSocket
-use Ratchet\Server\IoServer;
-use Ratchet\Http\HttpServer;
-use Ratchet\WebSocket\WsServer;
-
 $server = IoServer::factory(
     new HttpServer(
         new WsServer(
             new ChatServer()
         )
     ),
-    8080 // Port của WebSocket server
+    8080,
+    // '172.21.3.110'
 );
 
 echo "WebSocket server is running on ws://localhost:8080\n";

@@ -12,10 +12,10 @@ require_once '../app/controllers/SettingsController.php';
 require_once '../app/controllers/ProfileController.php';
 require_once '../app/controllers/AccountController.php';
 require_once '../app/controllers/ChatController.php';
-
-
-
 require_once '../app/models/User.php';
+
+
+
 
 // Xác định trang dựa trên tham số `page`
 $page = $_GET['page'] ?? 'home';
